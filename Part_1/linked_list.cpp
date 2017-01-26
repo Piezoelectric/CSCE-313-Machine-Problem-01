@@ -15,18 +15,40 @@
 /* Constructor */
 linked_list::linked_list()
 {
-
+	//construct first node
+	node* head = new node; //TODO: Question: Should we be using "new" at all?
+	head->next = NULL;
+	head->key = 0; head->value_len = 0;
+	
+	front_pointer = head;
+	free_pointer = head;
 }
 
 
 void linked_list::Init(int M, int b)
 {
-
+	//set properties of the constructed linked list
+	head_pointer = (char*) malloc(M);
+	int block_size = b;
+	int mem_size = M;
+	int max_data_size = M/b;
+	initialized = true;
+	
+	//construct the remaining nodes of the linked list
+	for (int i = 1; i < M/b; i++)
+	{
+		node* n = new node;
+		n->key = i;
+		n->value_len = b-8;
+		front_pointer->next = n;
+	}
 }
 
 void linked_list::Destroy()
 {
-
+	//http://www.geeksforgeeks.org/g-fact-30/ - free reverses malloc, delete reverses new
+	//TODO -- maybe free implicitly does deletion?
+	free(head_pointer);
 } 
 
 /* Insert an element into the list with a given key, given data element, and with a given length*/
@@ -45,7 +67,13 @@ int linked_list::Delete(int delete_key)
 /* otherwise, return NULL                                                           */
 struct node* linked_list::Lookup(int lookup_key)
 {
-
+	node* h = front_pointer;
+	for (int i = 0; i < max_data_size; i++)
+	{
+		if (h->key == lookup_key) { return h; }
+		else { h = h->next; }
+	}
+	return NULL;
 }
 
 /* Prints the list by printing the key and the data of each node */
@@ -90,6 +118,15 @@ void linked_list::PrintList()
 	 * depending on what insertions you perform into your list.  The values provided
 	 * here are for pedagogical purposes only)
 	 */
+	
+	node* h = front_pointer;
+	while (h->next)
+	{
+		std::cout << "Node: " << std::endl;
+		std::cout << " - Key: " << h->key << std::endl;
+		std::cout << " - Data: " << "TODO: What is a value?" << std::endl;
+		h = h->next;
+	}
 }
 
 /* Getter Functions */

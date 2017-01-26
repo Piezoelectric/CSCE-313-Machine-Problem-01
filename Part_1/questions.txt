@@ -1,0 +1,34 @@
+1)
+
+we're using new to create new nodes in the heap. 
+
+from what I learned in CSCE121, when we call new, the object is created 
+somewhere in the heap--just some random place
+
+when we do malloc and then new,
+does new still put our object randomly in the heap?
+or is it clever enough to place the new object in our malloc-obtained memory?
+or, if new doesn't do that, how can we force it to 
+place the object at a specific memory location?
+
+should we be using new at all...?
+
+2)
+
+based on the definition of free_data_pointer,
+I assumed we would create M/b nodes,
+with the first nodes of the linked-list having
+data, and the remaining nodes not.
+
+our insert() would simply take a preexisting node and put data into it,
+then shift free_data_pointer--instead of dynamically creating a new node every time we call insert,
+which seems to rely on implicit memory management.
+
+is this the correct approach?
+
+3)
+
+The provided definition of node doesn't define a value parameter,
+which makes sense, since value is typeless and can be assigned any type at runtime.
+
+But then how do we attach a value to a node?
