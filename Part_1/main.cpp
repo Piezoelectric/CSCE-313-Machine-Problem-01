@@ -58,14 +58,7 @@ int main(int argc, char ** argv)
 	node* kv = test_list->Lookup (3);
 	if (kv)
     {
-		printf ("Key = %d, Value Len = %d\n", *(int *) kv, *(int *) (kv+4));
-    }
-
-	// this look up  should succeed and print the string "a sample message"
-	kv = test_list->Lookup (13);
-	if (kv)
-    {
-		printf ("Key = %d, Value Len = %d, Value = %s\n", *(int *) kv, *(int *) (kv+4), kv + 8);
+        std::cout << "Key = " << kv->key << ", Value Len = " << kv->value_len << std::endl;
     }
 	
 	// end test operations	
