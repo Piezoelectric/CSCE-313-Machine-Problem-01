@@ -13,6 +13,10 @@ place the object at a specific memory location?
 
 should we be using new at all...?
 
+ANSWER: free implicitly clears the objects. We shouldn't be using new.
+Instead, we use reinterpret_cast<*node>(head_pointer) to convert the head_pointer from char* to node*,
+allowing us to iterate through the list.
+
 2)
 
 based on the definition of free_data_pointer,
@@ -26,9 +30,24 @@ which seems to rely on implicit memory management.
 
 is this the correct approach?
 
+ANSWER: Nope. Insert inserts something new. We don't pre-construct any nodes. 
+
+Also, delete gets more complicated.
+
 3)
 
 The provided definition of node doesn't define a value parameter,
 which makes sense, since value is typeless and can be assigned any type at runtime.
 
 But then how do we attach a value to a node?
+
+ANSWER: We don't. The actual value simply floats in memory behind the node itself. 
+Accessing it requires pointer arithmetic.
+
+There are additional complications...:
+(Questions regarding null terminator) In C, a string is a series of bytes in memory that can be arbitrary
+Typically, something will read the string until it hits whitespace or until a null terminator; 
+missing those, it'll go past the intended end, and read garbage
+
+(Questions regarding memcpy) --in C standard lib (include cstdlib or stdlib.h)
+use memcpy to copy data from char_pointer (argument of insert function) into our linked list memory zone.
