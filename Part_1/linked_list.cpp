@@ -25,42 +25,78 @@ linked_list::linked_list()
 void linked_list::Init(int M, int b)
 {
 	//set properties of the constructed linked list
-	 setHeadPointer( (char*) malloc(M));
-	 setBlockSize(b);
-	 setMemSize (M);
-	 setMaxDataSize(b - sizeof(node));
-	 //node* n = reinterpret_cast<*node> (head_pointer);
-	
-	//construct the remaining nodes of the linked list
-	/*for (int i = 0; i < M/b-1; i++)
-	{
-		n ->value_len = -1;
-		n->key = 0;
-		
-	}
-	n->next = NULL;*/
-	
+	setHeadPointer( (char*) malloc(M));
+	setBlockSize(b);
+	setMemSize (M);
+	//Max Data size is the size of the block minus the size of the head
+	setMaxDataSize(b - sizeof(node));
+	//Because list is empty the free data pointer is the head_pointer
 	free_data_pointer = reinterpret_cast<node*>(head_pointer);
 	initialized = true;
 }
 
 void linked_list::Destroy()
-{
-	//http://www.geeksforgeeks.org/g-fact-30/ - free reverses malloc, delete reverses new
-	//TODO -- maybe free implicitly does deletion?
+{	//free used data
 	free(head_pointer);
 	
-	head_pointer = NULL;
-	front_pointer = NULL;
-	free_pointer = NULL;
-	free_data_pointer = NULL;
-	initialized= false;
+	//reset pointers
+	setHeadPointer(nullptr);
+	setFrontPointer(nullptr);
+	setFreePointer(nullptr);
+	setFreeDataPointer(nullptr);
+	setInitialized(true);
 } 
 
 /* Insert an element into the list with a given key, given data element, and with a given length*/
 void linked_list::Insert (int k, char * data_ptr, int data_len)
-{
-
+{	char* c = head_pointer;
+	node* n = reinterpret_cast<node*> (head_pointer);
+	
+	//construct the remaining nodes of the linked list
+	for (int i = 0; i < getMemSize()/getBlockSize()-1; i++)
+	{
+		n ->value_len = -1;
+		n->key = 0;
+		c = c + getBlockSize();
+		n->next = reinterpret_cast<node*> (c);
+		n= n->next;
+	}
+	//last elements pointer to null
+	n->next = NULL;
+	
+	//insert values
+	free_data_pointer->key = k;
+	free_data_pointer->value_len=data_len;
+	
+	//move location of copied data to be shifted by the size of the node
+	data_ptr = reinterpret_cast<char*>(free_data_pointer);
+	memcpy(data_ptr+sizeof(node),data_ptr, data_len);
+	
+	//non-empty list
+	if(front_pointer !=NULL){
+		free_pointer->next = free_data_pointer;
+		free_pointer = free_pointer->next;
+		if(free_data_pointer->next ==NULL){
+			free_data_pointer = NULL;
+		}
+		else{
+			free_data_pointer = free_data_pointer->next;
+		}
+		free_pointer->next = NULL;
+	}
+	//empty list
+	else{
+		front_pointer =free_data_pointer;
+		free_pointer = front_pointer;
+		
+		if(free_data_pointer->next == NULL){
+			free_data_pointer = NULL;
+		}
+		else{
+			free_data_pointer = free_data_pointer->next;
+		}
+		free_pointer->next = NULL;
+	}
 }
 
 
@@ -74,9 +110,13 @@ int linked_list::Delete(int delete_key)
 struct node* linked_list::Lookup(int lookup_key)
 {
 	node* h = front_pointer;
+	if(h==NULL){
+		return NULL;
+	}
 	for (int i = 0; i < max_data_size; i++)
 	{
 		if (h->key == lookup_key) { return h; }
+		if(h->next==NULL){return NULL;}
 		else { h = h->next; }
 	}
 	return NULL;
