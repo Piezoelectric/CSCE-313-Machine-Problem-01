@@ -30,7 +30,7 @@ void linked_list::Init(int M, int b)
 	setMemSize (M);
 	//Max Data size is the size of the block minus the size of the head
 	setMaxDataSize(b - sizeof(node));
-	//Because list is empty the free data pointer is the head_pointer
+	//Because list is empty, the free data pointer is the head_pointer
 	free_data_pointer = reinterpret_cast<node*>(head_pointer);
 	initialized = true;
 }
@@ -52,17 +52,7 @@ void linked_list::Insert (int k, char * data_ptr, int data_len)
 {	char* c = head_pointer;
 	node* n = reinterpret_cast<node*> (head_pointer);
 	
-	//construct the remaining nodes of the linked list
-	for (int i = 0; i < getMemSize()/getBlockSize()-1; i++)
-	{
-		n ->value_len = -1;
-		n->key = 0;
-		c = c + getBlockSize();
-		n->next = reinterpret_cast<node*> (c);
-		n= n->next;
-	}
-	//last elements pointer to null
-	n->next = NULL;
+	/* removed the for loop that was here. -GH */
 	
 	//insert values
 	free_data_pointer->key = k;
@@ -73,8 +63,8 @@ void linked_list::Insert (int k, char * data_ptr, int data_len)
 	memcpy(data_ptr+sizeof(node),data_ptr, data_len);
 	
 	//non-empty list
-	if(front_pointer !=NULL){
-		free_pointer->next = free_data_pointer;
+	if(front_pointer != NULL){
+		free_pointer->next = free_data_pointer; 
 		free_pointer = free_pointer->next;
 		if(free_data_pointer->next ==NULL){
 			free_data_pointer = NULL;
@@ -86,7 +76,7 @@ void linked_list::Insert (int k, char * data_ptr, int data_len)
 	}
 	//empty list
 	else{
-		front_pointer =free_data_pointer;
+		front_pointer = free_data_pointer;
 		free_pointer = front_pointer;
 		
 		if(free_data_pointer->next == NULL){
@@ -102,21 +92,43 @@ void linked_list::Insert (int k, char * data_ptr, int data_len)
 
 int linked_list::Delete(int delete_key)
 {
-
+	node* search_result = Lookup(int delete_key); 
+	if (search_result != NULL) {
+		
+		//retrieve the node that is before the node-to-be-deleted
+		node* prev_node = getFrontPointer();
+		for (int i = 0; i < getMaxDataSize(); i++)
+		{
+			if (prev_node->next == search_result) { break; }
+			else if (prev_node == search_result) { std::cout << "DEBUG: prev_node == search_result\n"; }
+			else { prev_node = prev_node -> next; }
+		}
+		
+		//reassign links that will be broken
+		node* next_node = search_result->next;
+		prev_node -> next = next_node;
+		
+		//delete
+		
+		//fill the gap in memory with memcpy (BONUS--TODO?)
+	}
+	else {
+		std::cout << "ERROR: key was not found."
+	}
 }
 
-/* Iterate through the list, if a given key exists, return the pointer to it's node */
+/* Iterate through the list, if a given key exists, return the pointer to its node */
 /* otherwise, return NULL                                                           */
 struct node* linked_list::Lookup(int lookup_key)
 {
 	node* h = front_pointer;
-	if(h==NULL){
+	if(h == NULL){
 		return NULL;
 	}
 	for (int i = 0; i < max_data_size; i++)
 	{
 		if (h->key == lookup_key) { return h; }
-		if(h->next==NULL){return NULL;}
+		if (h->next == NULL) { return NULL;}
 		else { h = h->next; }
 	}
 	return NULL;
