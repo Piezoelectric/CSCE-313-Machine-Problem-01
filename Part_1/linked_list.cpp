@@ -10,7 +10,9 @@
 /* --------------------------------------------------------------------------- */
 
 #include "linked_list.h"
-
+#include <cstdint>
+#include <algorithm>
+#include <iterator>
 
 /* Constructor */
 linked_list::linked_list()
@@ -49,54 +51,31 @@ void linked_list::Destroy()
 
 /* Insert an element into the list with a given key, given data element, and with a given length*/
 void linked_list::Insert (int k, char * data_ptr, int data_len)
-{	char* c = head_pointer;
-	node* n = reinterpret_cast<node*> (head_pointer);
-	
-	//construct the remaining nodes of the linked list
-	for (int i = 0; i < getMemSize()/getBlockSize()-1; i++)
-	{
-		n ->value_len = -1;
-		n->key = 0;
-		c = c + getBlockSize();
-		n->next = reinterpret_cast<node*> (c);
-		n= n->next;
-	}
-	//last elements pointer to null
-	n->next = NULL;
-	
-	//insert values
-	free_data_pointer->key = k;
-	free_data_pointer->value_len=data_len;
-	
-	//move location of copied data to be shifted by the size of the node
-	data_ptr = reinterpret_cast<char*>(free_data_pointer);
-	memcpy(data_ptr+sizeof(node),data_ptr, data_len);
-	
-	//non-empty list
-	if(front_pointer !=NULL){
-		free_pointer->next = free_data_pointer;
-		free_pointer = free_pointer->next;
-		if(free_data_pointer->next ==NULL){
-			free_data_pointer = NULL;
-		}
-		else{
-			free_data_pointer = free_data_pointer->next;
-		}
-		free_pointer->next = NULL;
-	}
-	//empty list
-	else{
-		front_pointer =free_data_pointer;
+{	
+	if(front_pointer == nullptr){
+		front_pointer = reinterpret_cast<node*> (head_pointer);
 		free_pointer = front_pointer;
-		
-		if(free_data_pointer->next == NULL){
-			free_data_pointer = NULL;
-		}
-		else{
-			free_data_pointer = free_data_pointer->next;
-		}
-		free_pointer->next = NULL;
+		free_data_pointer = front_pointer + getBlockSize();
 	}
+	else{
+		node * prev = free_pointer;
+		free_pointer = free_data_pointer;
+        prev->next = free_pointer;
+		
+		if (free_data_pointer->next == nullptr)
+		{
+			
+			free_data_pointer += getBlockSize();
+		}
+		else
+		{
+			free_data_pointer = free_data_pointer->next;
+		}	
+	}
+	free_pointer->next = nullptr;
+	free_pointer->key = k;
+	free_pointer->value_len = data_len;
+	memcpy(free_pointer + sizeof(node), data_ptr,data_len);
 }
 
 
@@ -165,14 +144,7 @@ void linked_list::PrintList()
 	 * here are for pedagogical purposes only)
 	 */
 	
-	node* h = front_pointer;
-	while (h->next)
-	{
-		std::cout << "Node: " << std::endl;
-		std::cout << " - Key: " << h->key << std::endl;
-		std::cout << " - Data: " << "TODO: What is a value?" << std::endl;
-		h = h->next;
-	}
+	
 }
 
 /* Getter Functions */
