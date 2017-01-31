@@ -36,23 +36,21 @@ int main(int argc, char ** argv)
     // test operations
 	int testnums [] = {100, 5, 200, 7, 39, 25, 400, 50, 200, 300};
 	int i = 0;
-	std::cout<<"sdfdlkj\n"; //remove later
     // some sample insertions
 	for (i=0; i< 10; i ++)
 	{
-		std::cout<<i<<std::endl;//remove later
 		test_list->Insert(testnums [i], buf, 50);   // insert 50 bytes from the buffer as value for each of the insertions
 	}
-	std::cout<<"yes\n"; //remove later
     // This Insert should fail
     test_list->Insert (150, buf, 200);
-	std::cout<<"no\n";//remove later
+	std::cout << "FIRST LIST\n";
 	test_list->PrintList ();
 	test_list->Delete (7);
 	test_list->Insert (13, msg, strlen(msg)+1);		// insertion of strings, copies the null byte at the end
 	test_list->Delete (55);
 	test_list->Insert (15, "test msg", 8);
 	test_list->Delete (3);
+	std::cout << "SECOND LIST\n";
 	test_list->PrintList ();
 	
 	// a sample lookup operations that should return null, because it is looking up a non-existent number

@@ -47,53 +47,47 @@ void linked_list::Destroy()
 	setInitialized(true);
 } 
 
-/* Insert an element into the list with a given key, given data element, and with a given length*/
+/* Insert an element into the list with a given key, given data element, and with a given length
+Ported from AaronBranch*/
 void linked_list::Insert (int k, char * data_ptr, int data_len)
-{	char* c = head_pointer;
-	node* n = reinterpret_cast<node*> (head_pointer);
-	
-	/* removed the for loop that was here. -GH */
-	
-	//insert values
-	free_data_pointer->key = k;
-	free_data_pointer->value_len=data_len;
-	
-	//move location of copied data to be shifted by the size of the node
-	data_ptr = reinterpret_cast<char*>(free_data_pointer);
-	memcpy(data_ptr+sizeof(node),data_ptr, data_len);
-	
-	//non-empty list
-	if(front_pointer != NULL){
-		free_pointer->next = free_data_pointer; 
-		free_pointer = free_pointer->next;
-		if(free_data_pointer->next ==NULL){
-			free_data_pointer = NULL;
-		}
-		else{
-			free_data_pointer = free_data_pointer->next;
-		}
-		free_pointer->next = NULL;
+{
+	if (data_len > getMaxDataSize() ) {
+		std::cout << "Error: could not insert because the provided data_len " 
+		          << std::to_string(data_len) << " is larger than the max data size, "
+		          << std::to_string(getMaxDataSize()) << std::endl;
 	}
-	//empty list
-	else{
-		front_pointer = free_data_pointer;
-		free_pointer = front_pointer;
-		
-		if(free_data_pointer->next == NULL){
-			free_data_pointer = NULL;
+	else { 
+		if(front_pointer == nullptr) { //empty list
+			front_pointer = reinterpret_cast<node*> (head_pointer);
+			free_pointer = front_pointer;
+			free_data_pointer = front_pointer + getBlockSize();
 		}
-		else{
-			free_data_pointer = free_data_pointer->next;
+		else {
+			node * prev = free_pointer;
+			free_pointer = free_data_pointer;
+					prev->next = free_pointer;
+			
+			if (free_data_pointer->next == nullptr) {
+				
+				free_data_pointer += getBlockSize();
+			}
+			else {
+				free_data_pointer = free_data_pointer->next;
+			}	
 		}
-		free_pointer->next = NULL;
+	
+		free_pointer->next = nullptr;
+		free_pointer->key = k;
+		free_pointer->value_len = data_len;
+		memcpy(free_pointer + sizeof(node), data_ptr,data_len);
 	}
 }
 
 
 int linked_list::Delete(int delete_key)
 {
-	node* search_result = Lookup(int delete_key); 
-	if (search_result != NULL) {
+	node* search_result = Lookup(delete_key); 
+	if (search_result != nullptr) {
 		
 		//retrieve the node that is before the node-to-be-deleted
 		node* prev_node = getFrontPointer();
@@ -108,12 +102,18 @@ int linked_list::Delete(int delete_key)
 		node* next_node = search_result->next;
 		prev_node -> next = next_node;
 		
-		//delete
-		
 		//fill the gap in memory with memcpy (BONUS--TODO?)
+		void* dest = search_result;
+		void* source = next_node;
+		size_t temp_mem_length = (getFreePointer() - next_node);
+		
+		memmove(dest, source, temp_mem_length);
+		//http://man7.org/linux/man-pages/man3/memmove.3.html
+		
 	}
 	else {
-		std::cout << "ERROR: key was not found."
+		std::cout << "ERROR: delete_key " << std::to_string(delete_key)
+		          << " was not found through Lookup.\n";
 	}
 }
 
@@ -182,9 +182,14 @@ void linked_list::PrintList()
 	{
 		std::cout << "Node: " << std::endl;
 		std::cout << " - Key: " << h->key << std::endl;
-		std::cout << " - Data: " << "TODO: What is a value?" << std::endl;
+		std::cout << " - Data: " << h->value_len << std::endl; //I chose value_len
 		h = h->next;
-	}
+	} //this code exits when it hits the last node
+	
+	//needs to repeat one more time, to handle the very last node
+	std::cout << "Node: " << std::endl;
+	std::cout << " - Key: " << h->key << std::endl;
+	std::cout << " - Data: " << h->value_len << std::endl; //I chose value_len
 }
 
 /* Getter Functions */
