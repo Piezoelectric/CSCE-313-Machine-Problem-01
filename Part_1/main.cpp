@@ -9,10 +9,12 @@
 /* Standard Library Includes                                                   */
 /* --------------------------------------------------------------------------- */
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <climits>
+#include <iomanip>
 #include <string.h>
-
 /* --------------------------------------------------------------------------- */
 /* User Defined Includes                                                       */
 /* --------------------------------------------------------------------------- */
@@ -20,9 +22,20 @@
 #include "linked_list.h"
 
 int main(int argc, char ** argv) 
-{
-	int b = 128;
-	int M = b * 11;  // so we have space for 11 items
+{	int opt;
+	int b=NULL;
+	int M=NULL;
+	while((opt= getopt(argc, argv, "b:m:"))!=-1)
+	{
+		switch (opt){
+			case 'b':
+				 b= atoi(optarg);
+				break;
+			case 'm':
+				 M=atoi(optarg);
+				break;
+		}
+	}
 	
 	char buf [1024];
 	memset (buf, 1, 1024);		// set each byte to 1
