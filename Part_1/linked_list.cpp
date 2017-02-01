@@ -72,7 +72,7 @@ void linked_list::Insert (int k, char * data_ptr, int data_len)
 		free_pointer->next = nullptr;
 		free_pointer->key = k;
 		free_pointer->value_len = data_len;
-		memcpy(free_pointer + sizeof(node), data_ptr,data_len);
+		memcpy(free_pointer + 1, data_ptr,data_len);
 	}
 }
 
@@ -171,18 +171,21 @@ void linked_list::PrintList()
 	 */
 	
 	node* h = front_pointer;
-	while (h->next)
+	while (true)
 	{
 		std::cout << "Node: " << std::endl;
 		std::cout << " - Key: " << h->key << std::endl;
-		std::cout << " - Data: " << h->value_len << std::endl; //I chose value_len
+		std::cout << " - Data: ";
+		char* data = reinterpret_cast<char*> (h);
+		data = data + sizeof(node);
+		std::cout<< data;	
+		std::cout<< std::endl;
+		if(h->next == NULL){
+			break;
+		}
 		h = h->next;
 	} //this code exits when it hits the last node
 	
-	//needs to repeat one more time, to handle the very last node
-	std::cout << "Node: " << std::endl;
-	std::cout << " - Key: " << h->key << std::endl;
-	std::cout << " - Data: " << h->value_len << std::endl; //I chose value_len
 }
 
 /* Getter Functions */
