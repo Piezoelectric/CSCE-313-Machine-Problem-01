@@ -20,24 +20,82 @@
 #include "linked_list2.h"
 
 linked_list2::linked_list2()
-{
-	
+{	
 }
 
 void linked_list2::Init(int M, int b, int t)
 {
+	setMemSize(M);
+	setBlockSize(b);
+	setNumTiers(t);
+	setMaxDataSize(block_size-sizeof(node*));
+	
+	
+   setHeadPointer((char**) malloc(M));
+	
+	//allocate memory
+	for(int i=0; i< getNumTiers(); i++){
+		
+		head_pointer[i]= (char*) malloc(M);
+	}
+	
+	free_data_pointer = new node*[t];
+	free_pointer = new node*[t];
+	front_pointer = new node*[t];
+	
+	for(int j=0; j< getNumTiers(); j++){
+		free_data_pointer[j] = reinterpret_cast<node*> (head_pointer[j]);
+		free_pointer[j] = nullptr;
+		front_pointer[j] = nullptr;
+	}
 
+	setInitialized(true);
 }
 
 
 void linked_list2::Destroy()
 {
-
+	for(int i=0; i< getNumTiers();i++){
+		free(head_pointer[i]);
+		head_pointer[i]= nullptr;
+		front_pointer[i] = nullptr;
+		free_pointer[i] = nullptr;
+		free_data_pointer[i]= nullptr;
+	}
+	
+	free(head_pointer);
+	setHeadPointer(nullptr);
+	setInitialized(false);
 }
 
 void linked_list2::Insert(int k,char * data_ptr, int data_len)
 {
-
+	//find tier for specified key
+	int key_tier = Find_tier(k);
+	
+	if(front_pointer[key_tier]==NULL){
+		front_pointer[key_tier] = reinterpret_cast<node*> (head_pointer[key_tier]);
+		free_pointer[key_tier] = front_pointer[key_tier];
+		free_data_pointer[key_tier] = front_pointer[key_tier]+ getBlockSize();	
+	}
+	else{
+		node* prev = free_pointer[key_tier];
+		free_pointer[key_tier] = free_data_pointer[key_tier];
+		prev->next = free_pointer[key_tier];
+		
+		if(free_data_pointer[key_tier]->next == nullptr){
+			free_data_pointer[key_tier] += getBlockSize();
+		}
+		else{
+			free_data_pointer[key_tier]= free_data_pointer[key_tier]->next;
+		}
+		
+	}	
+	free_pointer[key_tier]->next = nullptr;
+	free_pointer[key_tier]->key = k;
+	free_pointer[key_tier]->value_len = data_len;
+	memcpy(free_pointer[key_tier]+1, data_ptr, data_len);
+	
 }
 
 int linked_list2::Delete(int delete_key)
@@ -98,11 +156,68 @@ void linked_list2::PrintList()
 	 * depending on what insertions you perform into your list.  The values provided
 	 * here are for pedagogical purposes only)
 	 */
+	for(int i=0; i< getNumTiers(); i++){
+	node* h = front_pointer[i];
+	if(h!=NULL){
+		 std::cout << "Tier " << i+1 << std::endl;
+		while (true)
+		{	
+			std::cout << "Node: " << std::endl;
+			std::cout << " - Key: " << h->key << std::endl;
+			std::cout << " - Data: ";
+			char* data = reinterpret_cast<char*> (h);
+			data = data + sizeof(node);
+			std::cout<< data;	
+			std::cout<< std::endl;
+			if(h->next == NULL){
+				break;
+			}
+			h = h->next;
+
+
+		}
+	}
+	}
 }
 
 int linked_list2::Find_tier(int key)
 {
+	int num_bigger_tiers = INT_MAX%num_tiers;
+    int tier_size = INT_MAX/num_tiers;
 
+    int extra = 0;
+    int tier_bound = tier_size;
+
+    //This will = 1 for as many tiers that should be one larger
+    if(num_bigger_tiers > 0)
+    {
+        extra = 1;
+    }
+
+    for (int i = 0; i < num_tiers; i++)
+    {
+        tier_bound += extra;
+        if(key <= tier_bound + extra)
+        {
+            return i;
+        }
+
+        //move bound up to max key values of the next region
+        tier_bound += tier_size;
+
+        if(num_bigger_tiers - i > 0)
+        {
+            extra = 1;
+        }
+        else
+        {
+            extra = 0;
+        }
+
+        tier_bound += extra;
+
+    }
+    return -1;
 }
 
 /* Getter Functions */
@@ -148,7 +263,7 @@ int linked_list2::getNumTiers()
 
 int linked_list2::getInitialized()
 {
-	return intitialized;
+	return initialized;
 }
 
 /* Setter Functions */

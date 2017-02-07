@@ -20,7 +20,7 @@
 #include "linked_list2.h"
 
 int main(int argc, char ** argv) 
-{
+{	
 	int b = 128;
 	int M = b * 16;  	// so we have space for 16 items in the whole list
 	int t = 4;			// 4 tiers and 4 items per tier
@@ -40,10 +40,12 @@ int main(int argc, char ** argv)
 	// some sample insertions
 	for (i=0; i< 6; i ++)
 	{
-		test_list->Insert (testnums [i], buf, 50);   // insert 50 bytes from the buffer as value for each of the insertions
+		test_list->Insert (testnums [i], msg, 50);   // insert 50 bytes from the buffer as value for each of the insertions
 	}
+	
 	test_list->PrintList();
 		
 	// end test operations	
-	test_list->Destroy();
+	//test_list->Destroy();
+	
 }
