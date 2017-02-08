@@ -31,7 +31,7 @@ void linked_list2::Init(int M, int b, int t)
 	setMaxDataSize(block_size-sizeof(node*));
 	
 	
-   setHeadPointer((char**) malloc(M*t));
+   setHeadPointer((char**) malloc(M));
 	
 	//allocate memory
 	for(int i=0; i< getNumTiers(); i++){
@@ -185,42 +185,8 @@ void linked_list2::PrintList()
 
 int linked_list2::Find_tier(int key)
 {
-	int num_bigger_tiers = INT_MAX%num_tiers;
-    int tier_size = INT_MAX/num_tiers;
-
-    int extra = 0;
-    int tier_bound = tier_size;
-
-    //This will = 1 for as many tiers that should be one larger
-    if(num_bigger_tiers > 0)
-    {
-        extra = 1;
-    }
-
-    for (int i = 0; i < num_tiers; i++)
-    {
-        tier_bound += extra;
-        if(key <= tier_bound + extra)
-        {
-            return i;
-        }
-
-        //move bound up to max key values of the next region
-        tier_bound += tier_size;
-
-        if(num_bigger_tiers - i > 0)
-        {
-            extra = 1;
-        }
-        else
-        {
-            extra = 0;
-        }
-
-        tier_bound += extra;
-
-    }
-    return -1;
+	int tier = key * ((double)num_tiers / INT_MAX);
+	return tier;
 }
 
 /* Getter Functions */
