@@ -31,12 +31,12 @@ void linked_list2::Init(int M, int b, int t)
 	setMaxDataSize(block_size-sizeof(node*));
 	
 	
-   setHeadPointer((char**) malloc(M));
+   setHeadPointer((char**) malloc(M*t));
 	
 	//allocate memory
 	for(int i=0; i< getNumTiers(); i++){
 		
-		head_pointer[i]= (char*) malloc(M);
+		head_pointer[i]= (char*) malloc(M*t);
 	}
 	
 	free_data_pointer = new node*[t];
@@ -50,6 +50,7 @@ void linked_list2::Init(int M, int b, int t)
 	}
 
 	setInitialized(true);
+	
 }
 
 
@@ -70,13 +71,11 @@ void linked_list2::Destroy()
 
 void linked_list2::Insert(int k,char * data_ptr, int data_len)
 {
-	//find tier for specified key
 	int key_tier = Find_tier(k);
-	
 	if(front_pointer[key_tier]==NULL){
 		front_pointer[key_tier] = reinterpret_cast<node*> (head_pointer[key_tier]);
 		free_pointer[key_tier] = front_pointer[key_tier];
-		free_data_pointer[key_tier] = front_pointer[key_tier]+ getBlockSize();	
+		free_data_pointer[key_tier] = free_pointer[key_tier]+ getBlockSize();
 	}
 	else{
 		node* prev = free_pointer[key_tier];
@@ -94,18 +93,22 @@ void linked_list2::Insert(int k,char * data_ptr, int data_len)
 	free_pointer[key_tier]->next = nullptr;
 	free_pointer[key_tier]->key = k;
 	free_pointer[key_tier]->value_len = data_len;
-	memcpy(free_pointer[key_tier]+1, data_ptr, data_len);
+	memcpy(free_pointer[key_tier]+ 1, data_ptr, data_len);
 	
 }
 
+/*ptr node | data node | data node |data
+data+node
+node can be done by +1
+but side of data has to be determined size(data) =5 cant just +5 it is 5 chars*/
 int linked_list2::Delete(int delete_key)
 {
-
+	return 0;
 }
 
 node* linked_list2::Lookup(int lookup_key)
 {
-
+	return NULL;
 }
 
 void linked_list2::PrintList()
@@ -157,9 +160,9 @@ void linked_list2::PrintList()
 	 * here are for pedagogical purposes only)
 	 */
 	for(int i=0; i< getNumTiers(); i++){
-	node* h = front_pointer[i];
+	node* h = reinterpret_cast<node*> (front_pointer[i]);
 	if(h!=NULL){
-		 std::cout << "Tier " << i+1 << std::endl;
+		 std::cout << "Tier " << i << std::endl;
 		while (true)
 		{	
 			std::cout << "Node: " << std::endl;
