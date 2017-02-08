@@ -36,7 +36,7 @@ void linked_list2::Init(int M, int b, int t)
 	//allocate memory
 	for(int i=0; i< getNumTiers(); i++){
 		
-		head_pointer[i]= (char*) malloc(M*t);
+		head_pointer[i]= (char*) malloc(M/t);
 	}
 	
 	free_data_pointer = new node*[t];
