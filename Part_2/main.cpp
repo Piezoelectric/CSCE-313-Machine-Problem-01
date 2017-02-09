@@ -8,7 +8,12 @@
 /* --------------------------------------------------------------------------- */
 /* Standard Library Includes                                                   */
 /* --------------------------------------------------------------------------- */
-
+#include <stdio.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <climits>
+#include <iomanip>
+#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string.h>
@@ -21,9 +26,23 @@
 
 int main(int argc, char ** argv) 
 {	
-	int b = 128;
-	int M = b * 16;  	// so we have space for 16 items in the whole list
-	int t = 4;			// 4 tiers and 4 items per tier
+	int opt;
+	int b=NULL;
+	int M=NULL;
+	int t = NULL;
+	while((opt= getopt(argc, argv, "b:m:t:"))!=-1)
+	{
+		switch (opt){
+			case 'b':
+				 b= atoi(optarg);
+				break;
+			case 'm':
+				 M=atoi(optarg);
+				break;
+			case 't':
+				t=atoi(optarg);
+		}
+	}			
 	
 	char buf [1024];
 	memset (buf, 1, 1024);		// set each byte to 1
