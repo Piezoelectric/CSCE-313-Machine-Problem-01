@@ -30,13 +30,12 @@ void linked_list2::Init(int M, int b, int t)
 	setNumTiers(t);
 	setMaxDataSize(block_size-sizeof(node*));
 	
-	
-   setHeadPointer((char**) malloc(M));
+  setHeadPointer((char**) malloc(M));
 	
 	//allocate memory
 	for(int i=0; i< getNumTiers(); i++){
-		
-		head_pointer[i]= (char*) malloc(M*t);
+		//head_pointer[i]= (char*) malloc(M*t); why does this work?!
+		head_pointer[i]= (char*) malloc(M/t);
 	}
 	
 	free_data_pointer = new node*[t];
@@ -97,19 +96,65 @@ void linked_list2::Insert(int k,char * data_ptr, int data_len)
 	
 }
 
-/*ptr node | data node | data node |data
-data+node
-node can be done by +1
-but side of data has to be determined size(data) =5 cant just +5 it is 5 chars*/
 int linked_list2::Delete(int delete_key)
 {
-	return 0;
+	//check if key exists
+	node* q = Lookup(delete_key);
+	
+	if(q != NULL) {
+		int key_tier = Find_tier(delete_key);
+		
+		node* prev_node; //node before q
+		node* next_node; //node after q
+		
+		//find the next_node
+		next_node = q->next;
+		
+		//find the prev_node
+		prev_node = front_pointer[key_tier];
+		
+		//special case: q is the first of the tier
+		if (prev_node == q) {
+			front_pointer[key_tier] = next_node;
+		}
+		else {
+			//reassign links
+			prev_node->next = next_node;
+		}
+		
+		//memmove-same as the one in part 1
+		/*void* dest = q;
+		void* source = next_node;
+		size_t temp_mem_length = (free_pointer[key_tier] - next_node);
+		memmove(dest, source, temp_mem_length);*/
+		
+		return 0;
+	}
+	else {
+		return 1; //treat 0 as default 
+	}
 }
 
 node* linked_list2::Lookup(int lookup_key)
 {
+	int key_tier = Find_tier(lookup_key);
+	node* h = front_pointer[key_tier];
+	
+	//code from part 1
+	if(h == NULL){
+		return NULL;
+	}
+	for (int i = 0; i < max_data_size; i++)
+	//Here I make the assumption that each tier is size m,
+	//so that I can use max_data_size as the number of blocks in the tier. TODO verify
+	{
+		if (h->key == lookup_key) { return h; }
+		else if (h->next == NULL) { return NULL;}
+		else { h = h->next; }
+	}
 	return NULL;
 }
+//Well it doesn't segfault so that's a plus
 
 void linked_list2::PrintList()
 {
